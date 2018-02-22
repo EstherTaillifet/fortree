@@ -1,0 +1,42 @@
+! Initialization file for Fortree.
+! ~: Python3 fortree.py init.txt
+
+----------------------------------------------------------------------------------
+What is the directory that contains the file(s) to parse ? 
+default value = current directory
+----------------------------------------------------------------------------------
+DIRECTORY_TO_PARSE
+/Users/esther/Research/Code/phantom/src
+
+----------------------------------------------------------------------------------
+What part of your program would you like to render ?
+To render the whole program, specify the program name: RENDER_WHOLE_PROGRAM. 
+To render a specific module only, specity the module name: RENDER_SINGLE_MODULE.
+To render a specific routine only, specity the routine name: RENDER_SINGLE_ROUTINE.
+----------------------------------------------------------------------------------
+RENDER_WHOLE_PROGRAM 
+Phantom
+
+RENDER_SINGLE_MODULE
+NONE
+
+RENDER_SINGLE_ROUTINE
+NONE
+
+----------------------------------------------------------------------------------
+What type of rendering do you need ?
+NONE
+CALL_TREE
+CALL_GRAPH
+DEF_TREE
+default value = NONE
+----------------------------------------------------------------------------------
+RENDER_TYPE
+CALL_TREE
+
+----------------------------------------------------------------------------------
+How would you like to call the output files (without extension) ? 
+Default value = fortree
+----------------------------------------------------------------------------------
+OUTPUT_NAME
+phantom_tree

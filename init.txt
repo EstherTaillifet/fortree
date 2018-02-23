@@ -1,5 +1,5 @@
 ! Initialization file for Fortree.
-! ~: Python3 fortree.py init.txt
+! ~$ Python3 fortree.py init.txt
 
 ----------------------------------------------------------------------------------
 What is the directory that contains the file(s) to parse ? 

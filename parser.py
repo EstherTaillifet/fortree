@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import numpy as np
 
 
@@ -64,8 +65,20 @@ def check_init_value(key, val):
 Functions related to parsing fortran program files
 """
 
+def get_re(key):
 
-def get_match(key, path):
+    re_key = ""
+
+    if len(key[0]) > 1 and len(key[1]) > 1:
+        for k in key:
+            re_key = re_key+"\s+"+k
+        re_key = re_key[3:]+"\s"
+    else:
+        re_key = "^(?!!)(\s*"+key+"\s+(\w+))"
+
+    return re_key
+
+def get_match(key, path, key_in = False, key_out = False):
     """
     Returns an array of words given after the key in the file accessed by path.
     key can be a couple of words.
@@ -76,31 +89,43 @@ def get_match(key, path):
     match = ""
     matches = ""
     file_name = ""
-    re_to_search = ""
+    re_key = get_re(key)
+
 
     if is_fortran_extension_file(path):
-        # extract word after keyword or key_to_match group from file
-        if len(key[0]) > 1 and len(key[1]) > 1:
-            for k in key:
-                re_to_search = re_to_search+"\s+"+k
-            re_to_search = re_to_search[3:]+"\s"
-        else:
-            re_to_search = "^(?!!)(\s*"+key+"\s+(\w+))"
+
+        if(key_in and key_out):
+            # subroutine\s+evol[\s\S]* ==> everything after "subroutine evol"
+            # subroutine\s+evol[\s\S]*end\s+subroutine\s+evol ===> everythong between
+            re_key_in = get_re(key_in)
+            re_key_out = get_re(key_out)
+            re_key_in_out = re_key_in[:-2] + '[\s\S]*' + re_key_out
+            file = open(path,"r")
+            result = re.findall(re_key_in_out, file.read(), re.IGNORECASE | re.MULTILINE)
+            file.close()
+            matches = re.findall(re_key, result[0], re.IGNORECASE | re.MULTILINE)
+
+        elif(key_in and key_out == False):
+
+            re_key_in = get_re(key_in)
+            re_key_in_out = re_key_in[:-2] + '[\s\S]*'
+            file = open(path,"r")
+            result = re.findall(re_key_in_out, file.read(), re.IGNORECASE | re.MULTILINE)
+            file.close()
+            matches = re.findall(re_key, result[0], re.IGNORECASE | re.MULTILINE)
+
+        elif(key_in == False and key_out == False):
+
+            
         
-        file = open(path,"r")
-        matches = re.findall(re_to_search, file.read(), re.IGNORECASE | re.MULTILINE)
-        file.close()
+            file = open(path,"r")
+            matches = re.findall(re_key, file.read(), re.IGNORECASE | re.MULTILINE)
+            file.close()
 
 
         # Prepare output
         for match in matches:
             outpout.append(match[1])
-    
-    # delete local variables
-    del match
-    del matches
-    del file_name
-    del re_to_search
 
     return outpout
     
@@ -108,11 +133,11 @@ def get_match(key, path):
 
 
 
-def parse(key, target , boundary_in=False, boundary_out=False, output_file=True):
+def parse(key, target , key_in=False, key_out=False, output_file=True):
     """
     key: word or couple of words to match.
     target: path or directory name in which search for matches. 
-    boundary_in and boundary_out: give part of the file to consider. Values false by default = parse the whole file.
+    key_in and key_out: give part of the file to consider. Values false by default = parse the whole file.
     output_file = True => the output file given is the one in which the match has been found
     output_file = False => no output file
     """
@@ -129,7 +154,7 @@ def parse(key, target , boundary_in=False, boundary_out=False, output_file=True)
                 file_path = path + "/" + file
                 if np.size(key) == 1:
                     key_to_match = key
-                    file_match = get_match(key_to_match,file_path)
+                    file_match = get_match(key_to_match,file_path,key_in, key_out)
                     if file_match:
                         if output_file:
                             for match in file_match:
@@ -140,7 +165,7 @@ def parse(key, target , boundary_in=False, boundary_out=False, output_file=True)
 
                 elif np.size(key) == 2:
                     key_to_match = [key[0],key[1]]
-                    file_match = get_match(key_to_match,file_path)
+                    file_match = get_match(key_to_match,file_path, key_in, key_out)
                     if file_match:
                         if output_file:
                             temp_output = np.vstack([temp_output,[key[1], file_path]])
@@ -149,7 +174,7 @@ def parse(key, target , boundary_in=False, boundary_out=False, output_file=True)
     elif os.path.isfile(target):
         if np.size(key) == 1:
             key_to_match = key
-            file_match = get_match(key_to_match,target)
+            file_match = get_match(key_to_match,target, key_in, key_out)
             if file_match:
                 if output_file:
                     for match in file_match:
@@ -160,7 +185,7 @@ def parse(key, target , boundary_in=False, boundary_out=False, output_file=True)
 
         elif np.size(key) == 2:
             key_to_match = [key[0],key[1]]
-            file_match = get_match(key_to_match,target)
+            file_match = get_match(key_to_match,target, key_in, key_out)
             if file_match:
                 if output_file:
                     temp_output = np.vstack([temp_output, [key[1], target]])
@@ -175,7 +200,7 @@ def parse(key, target , boundary_in=False, boundary_out=False, output_file=True)
 
     if not 'output' in locals():
         output = temp_output
-        del temp_output
+
 
     #print("++++++++++ output ++++++++++")
     #print(output)

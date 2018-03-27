@@ -27,15 +27,18 @@ class TreeNode:
     Initialization functions 
     '''
     def init_parent(self, keyword):
-        if (keyword == "program"):
-            match_key = ["program", self.name]
-        elif(keyword == "module"):
-        	match_key = ["module", self.name]
-        elif(keyword == "routine"):
-        	match_key = ["subroutine", self.name]
 
-        # Find definition file of parent
-        self.parent = pr.parse(match_key, self.directory)
+    	# Find definition file of parent
+        if (keyword == "program"):
+            key = ["program", self.name]
+        elif(keyword == "module"):
+        	key = ["module", self.name]
+        elif(keyword == "routine"):
+        	key = ["subroutine", self.name]
+
+        target = self.directory
+        
+        self.parent = pr.parse(key, target)
         if(np.size(self.parent) < 4):
             print("---------------------------------------------------------------")
             print("ERROR: ", keyword, " '", self.name, "' is not defined in one of the files contained in the given directory: ")
@@ -65,14 +68,17 @@ class TreeNode:
             self.init_parent(keyword)
 
         # Find used modules in parent definition file
-        self.used_modules = pr.parse("use", self.parent[1,1])
+        key = "use"
+        target = self.parent[1,1]
+        self.used_modules = pr.parse(key, target)
 
         # Find file definition for each module.
         n = np.shape(self.used_modules)
         nlines = n[0]
         for i in range(1,nlines-1): # Starts at 1 because the first line corrisponds to the coloumn tags.
             key = ["module",self.used_modules[i,0]] # self.used_modules[i,0] = module name
-            tmp = pr.parse(key, self.directory) # find module definition path.
+            target = self.directory
+            tmp = pr.parse(key, target) # find module definition path.
             self.used_modules[i,1] = tmp[1,1] # renplace path by the definition path.
 
 
@@ -82,10 +88,15 @@ class TreeNode:
 
         # Find chilren and their definitiion files
         if(keyword == "routine"):
-        	target = np.array(self.parent[1][1])
-        	self.children = pr.parse("call", self.parent[1,1])
+            key = "call"
+            key_in = ["subroutine",self.name]
+            key_out = ["end","subroutine", self.name]
+            target = self.parent[1,1]
+            self.children = pr.parse(key, target, key_in, key_out)
         else:
-            self.children = pr.parse("call", self.parent[1,1])
+            key = "call"
+            target = self.parent[1,1]
+            self.children = pr.parse(key, target)
         self.clean_children()
         
         to_delete_indexes = np.array(-1,dtype=int)
@@ -93,7 +104,8 @@ class TreeNode:
         nlines = n[0]
         for i in range(1,nlines-1): # Starts at 1 because the first line corrisponds to the coloumn tags.
             key = ["subroutine",self.children[i,0]] # self.children[i,0] = routine name
-            tmp = pr.parse(key, self.directory) # find routine definition path.
+            target = self.directory
+            tmp = pr.parse(key,target) # find routine definition path.
             if (np.size(tmp) < 4): # No match.
                 to_delete_indexes = np.append(to_delete_indexes,i)
             elif(np.size(tmp) > 4): # Several matches.
@@ -113,6 +125,7 @@ class TreeNode:
                     self.children[i,1] = tmp[1,1]
                 else:
                     to_delete_indexes = np.append(to_delete_indexes,i)
+
 
         if np.size(to_delete_indexes) > 1:
             to_delete_indexes = to_delete_indexes[1:]

@@ -59,10 +59,10 @@ class Fortree:
             root.print_var()
         elif(self.module):
             root =  tn.TreeNode(self.module, self.directory, keyword="module")
-            #root.print_var()
+            root.print_var()
         elif(self.routine):
             root =  tn.TreeNode(self.routine, self.directory, keyword="routine")
-            #root.print_var()
+            root.print_var()
         else:
             print("Try find program. Not implemented yet.")
 

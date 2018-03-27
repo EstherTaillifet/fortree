@@ -35,14 +35,23 @@ class TreeNode:
 
         # Find definition file of parent
         self.parent = pr.parse(match_key, self.directory)
+        if(np.size(self.parent) < 4):
+            print("---------------------------------------------------------------")
+            print("ERROR: ", keyword, " '", self.name, "' is not defined in one of the files contained in the given directory: ")
+            print(self.directory)
+            print("Please check the spelling.")
+            print("---------------------------------------------------------------")
+            sys.exit()
 
 
     def init_used_modules(self, keyword):
-        if(np.size(self.parent) != 4):
+        if(np.size(self.parent) < 4):
             self.init_parent(keyword)
+
         # Find used modules in parent definition file
         self.used_modules = pr.parse("use", self.parent[1,1])
-        
+
+        # Find file definition for each module.
         n = np.shape(self.used_modules)
         nlines = n[0]
         for i in range(1,nlines-1): # Starts at 1 because the first line corrisponds to the coloumn tags.
@@ -52,7 +61,7 @@ class TreeNode:
 
 
     def init_children(self, keyword):
-        if(np.size(self.used_modules) != 4):
+        if(np.size(self.used_modules) < 4):
             self.init_used_modules(keyword)   
 
         # Find chilren and their definitiion files
@@ -62,14 +71,15 @@ class TreeNode:
         else:
             self.children = pr.parse("call", self.parent[1,1])
         self.clean_children()
-
+        
+        to_delete_indexes = np.array(-1,dtype=int)
         n = np.shape(self.children)
         nlines = n[0]
         for i in range(1,nlines-1): # Starts at 1 because the first line corrisponds to the coloumn tags.
             key = ["subroutine",self.children[i,0]] # self.children[i,0] = routine name
             tmp = pr.parse(key, self.directory) # find routine definition path.
             if (np.size(tmp) < 4): # No match.
-                self.delete_child(i)
+                to_delete_indexes = np.append(to_delete_indexes,i)
             elif(np.size(tmp) > 4): # Several matches.
                 for tmppath in tmp[1:,1]: # Starts at 1 because the first line corrisponds to the coloumn tags.
                     for path in self.used_modules[1:,1]: # Starts at 1 because the first line corrisponds to the coloumn tags.
@@ -82,11 +92,15 @@ class TreeNode:
                     if(tmp[1,1] == path):
                         verif = True
                 if (tmp[1,1] == self.parent[1,1]):
-                	verif = True
+                    verif = True
                 if verif:
                     self.children[i,1] = tmp[1,1]
                 else:
-                	self.delete_child(i)    
+                    to_delete_indexes = np.append(to_delete_indexes,i)
+
+        if np.size(to_delete_indexes) > 1:
+            to_delete_indexes = to_delete_indexes[1:]
+            self.delete_child(to_delete_indexes)
 
     ''' 
     Visualization functions 
@@ -117,7 +131,12 @@ class TreeNode:
  
 
     def delete_child(self, irow):
-        self.children = np.delete(self.children, irow, axis=0)
+    	if isinstance(irow, int):
+    	    self.children = np.delete(self.children, irow, axis=0)
+    	else:
+            for i in irow:
+                self.children = np.delete(self.children, irow, axis=0)
+
 
 
     def clean_children(self):

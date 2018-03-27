@@ -14,6 +14,7 @@ class Fortree:
     def __init__(self):
 
         self.directory = ""
+        self.root_path = ""
         self.program = ""
         self.module = ""
         self.routine = ""
@@ -32,6 +33,7 @@ class Fortree:
             sys.exit()
         filename = sys.argv[1]
         self.directory = pr.get_init_value("DIRECTORY_TO_PARSE", filename)
+        self.root_path = pr.get_init_value("ROOT_PATH", filename)
         self.program = pr.get_init_value("RENDER_WHOLE_PROGRAM", filename)
         self.module = pr.get_init_value("RENDER_SINGLE_MODULE", filename)
         self.routine = pr.get_init_value("RENDER_SINGLE_ROUTINE", filename)
@@ -41,6 +43,7 @@ class Fortree:
     def print_var(self):
         print("---------------------------------------------------------------")
         print("directory = ",self.directory)
+        print("root path = ",self.root_path)
         print(
         "program to render = ", self.program, " | "
         "module to render = ", self.module, " | "
@@ -55,13 +58,13 @@ class Fortree:
     def build_tree(self):
 
         if self.program:
-            root = tn.TreeNode(self.program, self.directory, keyword="program")
+            root = tn.TreeNode(self.program, self.directory, keyword="program", root_path=self.root_path)
             root.print_var()
         elif(self.module):
-            root =  tn.TreeNode(self.module, self.directory, keyword="module")
+            root =  tn.TreeNode(self.module, self.directory, keyword="module", root_path=self.root_path)
             root.print_var()
         elif(self.routine):
-            root =  tn.TreeNode(self.routine, self.directory, keyword="routine")
+            root =  tn.TreeNode(self.routine, self.directory, keyword="routine", root_path=self.root_path)
             root.print_var()
         else:
             print("Try find program. Not implemented yet.")

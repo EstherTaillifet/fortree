@@ -7,9 +7,10 @@ import parser as pr
 
 class TreeNode:
 
-    def __init__(self, name, directory, keyword=None):
+    def __init__(self, name, directory, keyword, root_path=False):
         self.name = name
         self.directory = directory
+        self.root_path = root_path
         self.parent = np.array(["name","path"], dtype='U200') # name, path
         self.children = np.array(["name","path"], dtype='U200') # name, path
         self.used_modules = np.array(["name","path"], dtype='U200') # name, path
@@ -42,6 +43,21 @@ class TreeNode:
             print("Please check the spelling.")
             print("---------------------------------------------------------------")
             sys.exit()
+
+        if(np.size(self.parent) > 4):
+            if(self.root_path):
+            	del self.parent
+            	self.parent = np.array(["name","path"], dtype='U200')
+            	self.parent = np.vstack([self.parent,[self.name,self.root_path]])
+            else:
+                print("---------------------------------------------------------------")
+                print("ERROR: ", keyword, " '", self.name, "' is defined in multiple files: ")
+                for path in self.parent[1:,1]: 
+                    print(path)
+                print("Please give a specific ROOT_PATH in input.")
+                print("---------------------------------------------------------------")
+                sys.exit()               
+
 
 
     def init_used_modules(self, keyword):

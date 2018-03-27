@@ -25,12 +25,17 @@ def check_init_value(key, val):
     if (key == "DIRECTORY_TO_PARSE"):
         match = re.findall("\/[^,:]*", val)
         if match:
-        	val_out = val
+            val_out = val
         else:
             val_out = os.getcwd()
 
         if val_out[len(val_out)-1] == "/":
             val_out = val_out[0:len(val_out)-1]
+
+    elif (key == "ROOT_PATH"):
+        match = re.findall("\/[^,:]*", val)
+        if match:
+            val_out = val
 
     elif (key == "RENDER_WHOLE_PROGRAM"):
         if val != "NONE":

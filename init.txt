@@ -28,7 +28,6 @@ What type of rendering do you need ?
 NONE
 CALL_TREE
 CALL_GRAPH
-DEF_TREE
 default value = NONE
 ----------------------------------------------------------------------------------
 RENDER_TYPE

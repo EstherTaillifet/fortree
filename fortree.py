@@ -1,11 +1,11 @@
 import sys
 import os
-import re
+import numpy as np
 import parser as pr
 import render as rd
-import program as prog
-import module as mod
-import routine as rout
+import treeNode as tn
+
+
 
 
 
@@ -17,6 +17,8 @@ class Fortree:
         self.program = ""
         self.module = ""
         self.routine = ""
+        self.routines_list = ""
+        self.modules_list = ""
         self.render_type = ""
         self.output_name = ""
         self.init_var()
@@ -40,15 +42,36 @@ class Fortree:
         print("---------------------------------------------------------------")
         print("directory = ",self.directory)
         print(
-        "program = ", self.program, " | "
-        "module = ", self.module, " | "
-        "routine = ", self.routine
+        "program to render = ", self.program, " | "
+        "module to render = ", self.module, " | "
+        "routine to render = ", self.routine
         )
         print(
-        "render_type = ", self.render_type, " | "
-        "output_name = ", self.output_name
+        "render type = ", self.render_type, " | "
+        "output name = ", self.output_name
         )
         print("---------------------------------------------------------------")
+
+    def build_tree(self):
+
+        if self.program:
+            root = tn.TreeNode(self.program, self.directory, keyword="program")
+            root.print_var()
+        elif(self.module):
+            root =  tn.TreeNode(self.module, self.directory, keyword="module")
+            #root.print_var()
+        elif(self.routine):
+            root =  tn.TreeNode(self.routine, self.directory, keyword="routine")
+            #root.print_var()
+        else:
+            print("Try find program. Not implemented yet.")
+
+
+        return True
+
+    def render_tree(self):
+        rd.render(self)
+        return True
 
 
 
@@ -57,26 +80,16 @@ def main():
     print("=========================  FORTREE  ===========================")
     print("===============================================================")
     ft = ""
-    p = ""
-    m = ""
-    r = ""
 
     ft = Fortree()
     ft.print_var()
 
-    if(ft.program):
-        p = prog.Program(ft)
-        p.build_tree(ft)
-    elif (ft.module):
-        m = mod.Module(ft)
-        m.build_tree(ft)
-    elif (ft.routine):
-        r = rout.Routine(ft)
-        r.build_tree(ft)
-    else:
-        print("try to find a program")
+    if(ft.render_type == "CALL_TREE"):
+        ft.build_tree()
+    elif(ft.render_type == "CALL_GRAPH"):
+        print("call graph") # ft.build_graph()
 
-    rd.render(ft)
+    ft.render_tree()
 
 if __name__ == "__main__":
     main()

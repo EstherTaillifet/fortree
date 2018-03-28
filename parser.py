@@ -95,18 +95,16 @@ def get_match(key, path, key_in = False, key_out = False):
     if is_fortran_extension_file(path):
 
         if(key_in and key_out):
-            # subroutine\s+evol[\s\S]* ==> everything after "subroutine evol"
-            # subroutine\s+evol[\s\S]*end\s+subroutine\s+evol ===> everythong between
             re_key_in = get_re(key_in)
             re_key_out = get_re(key_out)
             re_key_in_out = re_key_in[:-2] + '[\s\S]*' + re_key_out
             file = open(path,"r")
             result = re.findall(re_key_in_out, file.read(), re.IGNORECASE | re.MULTILINE)
             file.close()
-            matches = re.findall(re_key, result[0], re.IGNORECASE | re.MULTILINE)
+            if result:
+               matches = re.findall(re_key, result[0], re.IGNORECASE | re.MULTILINE)            
 
         elif(key_in and key_out == False):
-
             re_key_in = get_re(key_in)
             re_key_in_out = re_key_in[:-2] + '[\s\S]*'
             file = open(path,"r")
@@ -115,13 +113,15 @@ def get_match(key, path, key_in = False, key_out = False):
             matches = re.findall(re_key, result[0], re.IGNORECASE | re.MULTILINE)
 
         elif(key_in == False and key_out == False):
-
-            
-        
             file = open(path,"r")
             matches = re.findall(re_key, file.read(), re.IGNORECASE | re.MULTILINE)
             file.close()
 
+        else:
+            print("---------------------------------------------------------------")
+            print("ERROR: wrong values in parsing boundaries.")
+            print("---------------------------------------------------------------")
+            sys.exit()
 
         # Prepare output
         for match in matches:

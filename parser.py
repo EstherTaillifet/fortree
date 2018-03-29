@@ -113,7 +113,9 @@ def get_match(key, path, key_in = False, key_out = False):
             matches = re.findall(re_key, result[0], re.IGNORECASE | re.MULTILINE)
 
         elif(key_in == False and key_out == False):
+            
             file = open(path,"r")
+            #with open(path, 'rb') as file:
             matches = re.findall(re_key, file.read(), re.IGNORECASE | re.MULTILINE)
             file.close()
 
@@ -126,7 +128,7 @@ def get_match(key, path, key_in = False, key_out = False):
         # Prepare output
         for match in matches:
             outpout.append(match[1])
-
+        
     return outpout
     
 
@@ -146,8 +148,8 @@ def parse(key, target , key_in=False, key_out=False, output_file=True):
     #print(target)
     
     temp_output = np.array(["name","path"],dtype='U200')
+    output = False
 
-    
     if os.path.isdir(target):
         for path, subdir_list, file_list in os.walk(target):
             for file in file_list:
@@ -198,9 +200,8 @@ def parse(key, target , key_in=False, key_out=False, output_file=True):
         sys.exit()   
 
 
-    if not 'output' in locals():
+    if np.size(temp_output) > 2:
         output = temp_output
-
 
     #print("++++++++++ output ++++++++++")
     #print(output)
@@ -209,7 +210,7 @@ def parse(key, target , key_in=False, key_out=False, output_file=True):
 
 
 def is_fortran_extension_file(path):
-    match = re.search("(\w+.f90)", path, re.IGNORECASE)
+    match = re.search("(\w+.f)", path, re.IGNORECASE)
     if match:
         return match[0]
     else:

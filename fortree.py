@@ -76,19 +76,19 @@ class Fortree:
 
         # Build routines list
         tmp_list = pr.parse("subroutine", self.directory) # routine name , definition file path
-        
+
         # List of objects that are instances of Routine class.
         self.routines_list = [ rt.Routine(one_routine, self.directory) for one_routine in tmp_list[1:]]
 
         # Build root
         if self.program:
-            self.root = tn.TreeNode(self.program, self.directory, keyword="program", root_path=self.root_path)
+            self.root = tn.TreeNode(self.program, self.directory, self.routines_list, keyword="program", root_path=self.root_path)
             #root.print_var()
         elif(self.module):
-            self.root =  tn.TreeNode(self.module, self.directory, keyword="module", root_path=self.root_path)
+            self.root =  tn.TreeNode(self.module, self.directory, self.routines_list, keyword="module", root_path=self.root_path)
             #root.print_var()
         elif(self.routine):
-            self.root =  tn.TreeNode(self.routine, self.directory, keyword="routine", root_path=self.root_path)
+            self.root =  tn.TreeNode(self.routine, self.directory, self.routines_list, keyword="routine", root_path=self.root_path)
             #root.print_var()
         else:
             tmp = pr.parse("program", self.directory)
@@ -128,12 +128,12 @@ class Fortree:
     def build_node(self, parent_node_obj, ftree):
         print("------------------------- New node ----------------------------")
         print("New parent = ", parent_node_obj.name)
-        #print("Children to consider = ", parent_node_obj.children[1:])
+        print("Children to consider = ", parent_node_obj.children[1:])
         for child in parent_node_obj.children[1:]:
             ftree.write(parent_node_obj.name, child[0])
             #print("Current child: ", child[0])
             #print("Current child path: ", child[1])
-            node =  tn.TreeNode(child[0], self.directory, keyword="routine", root_path=child[1])
+            node =  tn.TreeNode(child[0], self.directory, self.routines_list, keyword="routine", root_path=child[1])
             if np.size(node.children) > 2:
                 #print("Current child's children = ",node.children[1:])
                 self.build_node(node, ftree)
@@ -159,7 +159,7 @@ def main():
     ft.print_var()
 
     if(ft.render_type == "CALL_TREE"):
-        #ft.build_tree()
+        ft.build_tree()
         print("call tree")
     elif(ft.render_type == "CALL_GRAPH"):
         print("call graph") # ft.build_graph()

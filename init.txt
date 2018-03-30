@@ -6,14 +6,14 @@ What is the directory that contains the file(s) to parse ?
 (Non mendatory. Default value = current directory)
 ----------------------------------------------------------------------------------
 DIRECTORY_TO_PARSE
-/Users/esther/Research/Code/phantom/src
+/Users/esther/Research/Code/Phantom/src
 
 ----------------------------------------------------------------------------------
 What is the path (including file name) to the root file to parse ? 
 (Non mendatory if no confusion of file can be made given the next section)
 ----------------------------------------------------------------------------------
 ROOT_PATH
-/Users/esther/Research/Code/phantom/src/main/evolve.F90
+/Users/esther/Research/Code/Phantom/src/main/evolve.F90
 
 ----------------------------------------------------------------------------------
 What part of your program would you like to render ?

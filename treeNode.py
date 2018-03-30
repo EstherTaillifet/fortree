@@ -7,7 +7,7 @@ import parser as pr
 
 class TreeNode:
 
-    def __init__(self, name, directory, keyword, root_path=False):
+    def __init__(self, name, directory, routines_list, keyword, root_path=False):
         self.name = name
         self.directory = directory
         self.root_path = root_path
@@ -20,7 +20,7 @@ class TreeNode:
         # Init used_modules
         self.init_used_modules(keyword)
         # Init children
-        self.init_children(keyword)
+        self.init_children(keyword, routines_list)
 
     
     ''' 
@@ -99,20 +99,32 @@ class TreeNode:
                           	
 
 
-    def init_children(self, keyword):
+    def init_children(self, keyword, routines_list):
         if(np.size(self.used_modules) < 4):
             self.init_used_modules(keyword)   
         
+
+
         # Find chilren and their definitiion files
         if(keyword == "routine"):
-            key = "call"
-            key_in = ["subroutine",self.name]
-            key_out = ["end","subroutine", self.name]
-            target = self.parent[1,1]
-            tmp = pr.parse(key, target, key_in, key_out)
+            #key = "call"
+            #key_in = ["subroutine",self.name]
+            #key_out = ["end","subroutine", self.name]
+            #target = self.parent[1,1]
+            #tmp = pr.parse(key, target, key_in, key_out)
 
-            if not (isinstance(tmp, bool)):
-            	self.children = tmp
+            #if not (isinstance(tmp, bool)):
+            #	self.children = tmp
+
+
+            for routine in routines_list:
+                if routine.name == self.name:
+                    if np.size(routine.callees) > 1:
+                        for callee in routine.callees:
+                            self.children = np.vstack([self.children, [callee[0], routine.path]])
+                    break
+
+
         else:
             key = "call"
             target = self.parent[1,1]
@@ -148,7 +160,7 @@ class TreeNode:
                     print("---------------------------------------------------------------")
                     to_delete_indexes = np.append(to_delete_indexes,i)                    
             else: # Single match.
-                Verif = False
+                verif = False
                 if(np.size(self.used_modules) > 2):
                     for path in self.used_modules[1:,1]: # Verify definition file is an included module definition file or parent file. Delete otherwise.
                         if(tmp[1,1] == path):
@@ -170,8 +182,9 @@ class TreeNode:
                 else:
                     self.children[i,1] = tmp[1,1]
                     print("---------------------------------------------------------------")
-                    print("WARNING: Can't verify if the code had the write to use file: ")
+                    print("WARNING: Can't verify if the code allowed to use file: ")
                     print(tmp[1,1])
+                    print("It was used anyway.")
                     print("---------------------------------------------------------------")
 
     

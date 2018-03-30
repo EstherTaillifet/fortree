@@ -12,7 +12,6 @@ class Routine:
 
         self.name = infos[0]
         self.path = infos[1]
-        #self.callers = np.array("name", dtype='U200') # name
         self.callees = np.array(["name"], dtype='U200') # name
 
         # Init callees
@@ -26,10 +25,7 @@ class Routine:
             self.callees = tmp
             self.callees = np.unique(self.callees, axis=0)
 
-        # Init callers
-        #key = ["call",self.name]
-        #target = directory
-        #self.callers = pr.parse(key, target, key_in=False, key_out=False, output_file=False)
+
 
 
 

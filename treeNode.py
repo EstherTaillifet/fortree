@@ -107,15 +107,6 @@ class TreeNode:
 
         # Find chilren and their definitiion files
         if(keyword == "routine"):
-            #key = "call"
-            #key_in = ["subroutine",self.name]
-            #key_out = ["end","subroutine", self.name]
-            #target = self.parent[1,1]
-            #tmp = pr.parse(key, target, key_in, key_out)
-
-            #if not (isinstance(tmp, bool)):
-            #	self.children = tmp
-
 
             for routine in routines_list:
                 if routine.name == self.name:

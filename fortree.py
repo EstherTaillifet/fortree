@@ -98,16 +98,6 @@ class Fortree:
 
 
 
-
-        #n = np.shape(tmp_list)
-        
-        #for i in range(0, n[0]-1):
-        #    print('-------------------------------------------------')
-        #    print(self.routines_list[i].name)
-        #    print(self.routines_list[i].path)
-        #    print(self.routines_list[i].callees)
-
-
     def build_tree(self):
 
         # Start writing tree
@@ -142,11 +132,6 @@ class Fortree:
         return True
 
 
-    #def render_tree(self):
-    #    rd.render(self)
-    #    return True
-
-
 
 def main():
     print("===============================================================")
@@ -164,7 +149,7 @@ def main():
     elif(ft.render_type == "CALL_GRAPH"):
         print("call graph") # ft.build_graph()
 
-    #ft.render_tree()
+
 
 if __name__ == "__main__":
 

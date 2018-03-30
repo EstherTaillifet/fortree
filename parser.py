@@ -147,7 +147,11 @@ def parse(key, target , key_in=False, key_out=False, output_file=True):
     #print(key)
     #print(target)
     
-    temp_output = np.array(["name","path"],dtype='U200')
+    if(output_file):
+        temp_output = np.array(["name","path"],dtype='U200')
+    else:
+        temp_output = np.array("name",dtype='U200')
+
     output = False
 
     if os.path.isdir(target):

@@ -96,7 +96,9 @@ class TreeNode:
                 print(self.directory)
                 print("Please ignore this if '",self.used_modules[i,0],"' is defined by fortran language libraries." )
                 print("---------------------------------------------------------------")
-                          	
+        self.used_modules = self.delete(self.used_modules,to_delete_indexes)
+        self.used_modules = self.clean(self.used_modules)
+
 
 
     def init_children(self, keyword, routines_list):
@@ -122,7 +124,7 @@ class TreeNode:
             tmp = pr.parse(key, target)
             if not (isinstance(tmp, bool)):
                 self.children = tmp
-        self.clean_children()
+        self.children = self.clean(self.children)
 
         
         to_delete_indexes = np.array(-1,dtype=int)
@@ -181,7 +183,7 @@ class TreeNode:
     
         if np.size(to_delete_indexes) > 1:
             to_delete_indexes = to_delete_indexes[1:]
-            self.delete_child(to_delete_indexes)
+            self.children = self.delete(self.children,to_delete_indexes)
 
     ''' 
     Visualization functions 
@@ -208,26 +210,29 @@ class TreeNode:
     '''
     def add_child(self, child):
         self.children = np.vstack([self.children, child])
-        self.clean_children()
+        self.children = self.clean(self.children)
  
 
-    def delete_child(self, irow):
-    	if isinstance(irow, int):
-    	    self.children = np.delete(self.children, irow, axis=0)
-    	else:
-            for i in irow:
-                self.children = np.delete(self.children, irow, axis=0)
+    def delete(self, arr, irow):
+        if isinstance(irow, int):
+            if (irow > -1):
+                arr = np.delete(arr, irow, axis=0)
+        else:
+            if np.size(irow) > 1:
+                for i in irow:
+                    arr = np.delete(arr, irow, axis=0)
+        return arr
 
 
-
-    def clean_children(self):
-        tmp, indexes = np.unique(self.children,return_index=True, axis=0)
+    def clean(self, arr):
+        tmp, indexes = np.unique(arr,return_index=True, axis=0)
         indexes = np.sort(indexes)
         j=0
         for i in indexes:
-        	tmp[j]=self.children[i]
-        	j = j+1
-        self.children = tmp
+            tmp[j]=arr[i]
+            j = j+1
+        arr = tmp
+        return arr
 
 
 

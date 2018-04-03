@@ -206,12 +206,8 @@ class TreeNode:
 
 
     ''' 
-    Operations on children
+    Operations on treeNodes elements.
     '''
-    def add_child(self, child):
-        self.children = np.vstack([self.children, child])
-        self.children = self.clean(self.children)
- 
 
     def delete(self, arr, irow):
         if isinstance(irow, int):

@@ -27,6 +27,7 @@ class Fortree:
         self.root = ""
         self.routines_list = ""
         self.non_defined_modules_list = ""
+        self.tree_arr = ""
 
         self.init_file_var()
         self.init_tree_var()
@@ -98,13 +99,15 @@ class Fortree:
             sys.exit()
         self.non_defined_modules_list = self.root.non_defined_modules_list
 
+        if(self.render_type == "CALL_TREE"):
+            self.tree_arr = np.array(["caller", "callee"], dtype='U200')
+        else:
+            self.tree_arr = np.array(["parent", "child"], dtype='U200')
+
 
 
     def build_tree(self):
 
-        # Start writing tree
-        ftree = rd.Render(self.output_name)
-        ftree.write_header()
 
         # Build root
         if not isinstance(self.root, tn.TreeNode):
@@ -112,13 +115,12 @@ class Fortree:
   
         # Build levels
         level = 0
-        self.build_node(self.root, ftree, level)
+        self.build_node(self.root, level)
 
-        # End writing tree
-        ftree.write_footer()
-        ftree.render()
+        return self.tree_arr
 
-    def build_node(self, parent_node_obj, ftree, level=False):
+
+    def build_node(self, parent_node_obj, level=False):
         #print("----------------------------------------------------------------------------------")
         #print("------------------------- New node -------------------------------- Level ---- ", level)
         #print("----------------------------------------------------------------------------------")
@@ -127,20 +129,20 @@ class Fortree:
         #print("----------------------------------------------------------------------------------")
         if isinstance(level,int):
             level = level+1
-        #    if level == 3:
-        #        return
-        print(np.size(parent_node_obj.children))
-        print(np.size(parent_node_obj.children[1:]))
+            #if level == 3:
+            #    return
+
         if (np.size(parent_node_obj.children) > 2):
             for child in parent_node_obj.children[1:]:
-                ftree.write(parent_node_obj.name, child[0])
+                self.tree_arr=np.vstack([self.tree_arr, [parent_node_obj.name, child[0]]])
+
                 #print("Current child: ", child[0])
                 #print("Current child path: ", child[1])
                 node =  tn.TreeNode(child[0], self.directory, self.routines_list, self.non_defined_modules_list, keyword="routine", root_path=child[1])
                 self.non_defined_modules_list = node.non_defined_modules_list
                 #if np.size(node.children) > 2:
                     #print("Current child's children = ",node.children[1:])
-                self.build_node(node, ftree, level)
+                self.build_node(node, level)
     
         
         return True
@@ -159,7 +161,19 @@ def main():
 
     if(ft.render_type == "CALL_TREE"):
         ft.build_tree()
-        print("call tree")
+
+        #clean duplicates
+        ft.tree_arr = np.unique(ft.tree_arr, axis=0)
+
+        # write tree
+        ftree = rd.Render(ft.output_name)
+
+        ftree.write_header()
+        for duet in ft.tree_arr:
+            ftree.write(duet[0], duet[1])
+        ftree.write_footer()
+        ftree.render()
+
     elif(ft.render_type == "CALL_GRAPH"):
         print("call graph") # ft.build_graph()
 

@@ -26,7 +26,7 @@ class Fortree:
         # Init tree var
         self.root = ""
         self.routines_list = ""
-        self.modules_list = ""
+        self.non_defined_modules_list = ""
 
         self.init_file_var()
         self.init_tree_var()
@@ -73,6 +73,7 @@ class Fortree:
         if(len(self.directory) < 1):
             self.init_file_var()
 
+        self.non_defined_modules_list = np.array(["name"], dtype='U200')
 
         # Build routines list
         tmp_list = pr.parse("subroutine", self.directory) # routine name , definition file path
@@ -82,19 +83,20 @@ class Fortree:
 
         # Build root
         if self.program:
-            self.root = tn.TreeNode(self.program, self.directory, self.routines_list, keyword="program", root_path=self.root_path)
+            self.root = tn.TreeNode(self.program, self.directory, self.routines_list, self.non_defined_modules_list, keyword="program", root_path=self.root_path)
             #root.print_var()
         elif(self.module):
-            self.root =  tn.TreeNode(self.module, self.directory, self.routines_list, keyword="module", root_path=self.root_path)
+            self.root =  tn.TreeNode(self.module, self.directory, self.routines_list, self.non_defined_modules_list, keyword="module", root_path=self.root_path)
             #root.print_var()
         elif(self.routine):
-            self.root =  tn.TreeNode(self.routine, self.directory, self.routines_list, keyword="routine", root_path=self.root_path)
+            self.root =  tn.TreeNode(self.routine, self.directory, self.routines_list, self.non_defined_modules_list, keyword="routine", root_path=self.root_path)
             #root.print_var()
         else:
             tmp = pr.parse("program", self.directory)
             print(tmp)
             print("Try find program. Not implemented yet.")
             sys.exit()
+        self.non_defined_modules_list = self.root.non_defined_modules_list
 
 
 
@@ -109,26 +111,38 @@ class Fortree:
             self.init_tree_var()
   
         # Build levels
-        self.build_node(self.root, ftree)
+        level = 0
+        self.build_node(self.root, ftree, level)
 
         # End writing tree
         ftree.write_footer()
         ftree.render()
 
-    def build_node(self, parent_node_obj, ftree):
-        print("------------------------- New node ----------------------------")
-        print("New parent = ", parent_node_obj.name)
-        print("Children to consider = ", parent_node_obj.children[1:])
-        for child in parent_node_obj.children[1:]:
-            ftree.write(parent_node_obj.name, child[0])
-            #print("Current child: ", child[0])
-            #print("Current child path: ", child[1])
-            node =  tn.TreeNode(child[0], self.directory, self.routines_list, keyword="routine", root_path=child[1])
-            if np.size(node.children) > 2:
-                #print("Current child's children = ",node.children[1:])
-                self.build_node(node, ftree)
-
-
+    def build_node(self, parent_node_obj, ftree, level=False):
+        #print("----------------------------------------------------------------------------------")
+        #print("------------------------- New node -------------------------------- Level ---- ", level)
+        #print("----------------------------------------------------------------------------------")
+        #print("New parent = ", parent_node_obj.name)
+        #print("Children to consider = ", parent_node_obj.children)
+        #print("----------------------------------------------------------------------------------")
+        if isinstance(level,int):
+            level = level+1
+        #    if level == 3:
+        #        return
+        print(np.size(parent_node_obj.children))
+        print(np.size(parent_node_obj.children[1:]))
+        if (np.size(parent_node_obj.children) > 2):
+            for child in parent_node_obj.children[1:]:
+                ftree.write(parent_node_obj.name, child[0])
+                #print("Current child: ", child[0])
+                #print("Current child path: ", child[1])
+                node =  tn.TreeNode(child[0], self.directory, self.routines_list, self.non_defined_modules_list, keyword="routine", root_path=child[1])
+                self.non_defined_modules_list = node.non_defined_modules_list
+                #if np.size(node.children) > 2:
+                    #print("Current child's children = ",node.children[1:])
+                self.build_node(node, ftree, level)
+    
+        
         return True
 
 

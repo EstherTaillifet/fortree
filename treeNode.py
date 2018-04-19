@@ -7,21 +7,21 @@ import parser as pr
 
 class TreeNode:
 
-    def __init__(self, name, directory, routines_list, keyword, root_path=False):
+    def __init__(self, name, directory, routines_list, non_defined_modules_list, keyword, root_path=False):
         self.name = name
         self.directory = directory
         self.root_path = root_path
         self.parent = np.array(["name","path"], dtype='U200') # name, path
         self.children = np.array(["name","path"], dtype='U200') # name, path
         self.used_modules = np.array(["name","path"], dtype='U200') # name, path
+        self.non_defined_modules_list = non_defined_modules_list
 
         # Init parent
         self.init_parent(keyword)
         # Init used_modules
         self.init_used_modules(keyword)
-        # Init children
+        # Init children     
         self.init_children(keyword, routines_list)
-
     
     ''' 
     Initialization functions 
@@ -79,33 +79,37 @@ class TreeNode:
         tmp = pr.parse(key, target)
         if not (isinstance(tmp, bool)):
             self.used_modules = tmp
+            # Find file definition for each module.
+            n = np.shape(self.used_modules)
+            nlines = n[0]
+            for i in range(1,nlines): # Starts at 1 because the first line corrisponds to the coloumn tags.
+                if np.any(self.non_defined_modules_list[:] == self.used_modules[i,0]):
+                    to_delete_indexes = np.append(to_delete_indexes,i)
+                else:
 
-        # Find file definition for each module.
-        n = np.shape(self.used_modules)
-        nlines = n[0]
-        for i in range(1,nlines-1): # Starts at 1 because the first line corrisponds to the coloumn tags.
-            key = ['module',self.used_modules[i,0]] # self.used_modules[i,0] = module name
-            target = self.directory
-            tmp = pr.parse(key, target) # find module definition path.
-            if not (isinstance(tmp, bool)):
-                self.used_modules[i,1] = tmp[1,1] # replace path by the definition path.
-            else:
-                to_delete_indexes = np.append(to_delete_indexes,i)
-                print("---------------------------------------------------------------")
-                print("WARNING: ", keyword, " '", self.used_modules[i,0], "' is not defined in one of the files contained in the given directory: ")
-                print(self.directory)
-                print("Please ignore this if '",self.used_modules[i,0],"' is defined by fortran language libraries." )
-                print("---------------------------------------------------------------")
-        self.used_modules = self.delete(self.used_modules,to_delete_indexes)
-        self.used_modules = self.clean(self.used_modules)
+                    key = ['module',self.used_modules[i,0]] # self.used_modules[i,0] = module name
+                    target = self.directory
+                    tmp = pr.parse(key, target) # find module definition path.
+                    if not (isinstance(tmp, bool)):
+                        self.used_modules[i,1] = tmp[1,1] # replace path by the definition path.
+                    else:
+                        to_delete_indexes = np.append(to_delete_indexes,i)
+                        print("---------------------------------------------------------------")
+                        print("WARNING: Module '", self.used_modules[i,0], "' is not defined in one of the files contained in the given directory: ")
+                        print(self.directory)
+                        print("Please ignore this if '",self.used_modules[i,0],"' is defined by Fortran language libraries or is a random word." )
+                        print("---------------------------------------------------------------")
+                        self.non_defined_modules_list = np.append(self.non_defined_modules_list, self.used_modules[i,0])
+                        self.non_defined_modules_list = self.clean(self.non_defined_modules_list)
 
+            self.used_modules = self.delete(self.used_modules,to_delete_indexes)
+            self.used_modules = self.clean(self.used_modules)
+    
 
 
     def init_children(self, keyword, routines_list):
         if(np.size(self.used_modules) < 4):
             self.init_used_modules(keyword)   
-        
-
 
         # Find chilren and their definitiion files
         if(keyword == "routine"):
@@ -129,58 +133,60 @@ class TreeNode:
         
         to_delete_indexes = np.array(-1,dtype=int)
         n = np.shape(self.children)
+
         nlines = n[0]
-        for i in range(1,nlines-1): # Starts at 1 because the first line corrisponds to the coloumn tags.
-            key = ["subroutine",self.children[i,0]] # self.children[i,0] = routine name
-            target = self.directory
-            tmp = pr.parse(key,target) # find routine definition path.
-            if (isinstance(tmp, bool)): # No match.
-                to_delete_indexes = np.append(to_delete_indexes,i)
-            elif(np.size(tmp) > 4): # Several matches.
-                if(np.size(self.used_modules) > 2):
-                    for tmppath in tmp[1:,1]: # Starts at 1 because the first line corrisponds to the coloumn tags.
-                        for path in self.used_modules[1:,1]: # Starts at 1 because the first line corrisponds to the coloumn tags.
-                            if(tmppath == path):
-                                self.children[i,1] = path
-                                break
-                else:
-                    print("---------------------------------------------------------------")
-                    print("WARNING: ", keyword, " '", self.children[i,0], "' is defined more than once in: ")
-                    if(self.root_path):
-                        print(self.root_path)
+        
+        if nlines > 2:
+            for i in range(1,nlines): # Starts at 1 because the first line corrisponds to the coloumn tags.
+                key = ["subroutine",self.children[i,0]] # self.children[i,0] = routine name
+                target = self.directory
+                tmp = pr.parse(key,target) # find routine definition path.
+                if (isinstance(tmp, bool)): # No match.
+                    to_delete_indexes = np.append(to_delete_indexes,i)
+                elif(np.size(tmp) > 4): # Several matches.
+                    if(np.size(self.used_modules) > 2):
+                        for tmppath in tmp[1:,1]: # Starts at 1 because the first line corrisponds to the coloumn tags.
+                            for path in self.used_modules[1:,1]: # Starts at 1 because the first line corrisponds to the coloumn tags.
+                                if(tmppath == path):
+                                    self.children[i,1] = path
+                                    break
                     else:
-                        print(self.directory)
-                    print("---------------------------------------------------------------")
-                    to_delete_indexes = np.append(to_delete_indexes,i)                    
-            else: # Single match.
-                verif = False
-                if(np.size(self.used_modules) > 2):
-                    for path in self.used_modules[1:,1]: # Verify definition file is an included module definition file or parent file. Delete otherwise.
-                        if(tmp[1,1] == path):
-                            verif = True
-                    if (tmp[1,1] == self.parent[1,1]):
-                        verif = True
-                    if verif:
-                        self.children[i,1] = tmp[1,1]
-                    else:
-                        to_delete_indexes = np.append(to_delete_indexes,i)
                         print("---------------------------------------------------------------")
-                        print("WARNING: ", keyword, " '", self.children[i,0], "' is not defined in one of the files contained in: ")
+                        print("WARNING: ", keyword, " '", self.children[i,0], "' is defined more than once in: ")
                         if(self.root_path):
                             print(self.root_path)
                         else:
                             print(self.directory)
-                        print("Please ignore this if '",self.children[i,0],"' is defined by fortran language libraries." )
                         print("---------------------------------------------------------------")
-                else:
-                    self.children[i,1] = tmp[1,1]
-                    print("---------------------------------------------------------------")
-                    print("WARNING: Can't verify if the code allowed to use file: ")
-                    print(tmp[1,1])
-                    print("It was used anyway.")
-                    print("---------------------------------------------------------------")
+                        to_delete_indexes = np.append(to_delete_indexes,i)                    
+                else: # Single match.
+                    verif = False
+                    if(np.size(self.used_modules) > 2):
+                        for path in self.used_modules[1:,1]: # Verify definition file is an included module definition file or parent file. Delete otherwise.
+                            if(tmp[1,1] == path):
+                                verif = True
+                        if (tmp[1,1] == self.parent[1,1]):
+                            verif = True
+                        if verif:
+                            self.children[i,1] = tmp[1,1]
+                        else:
+                            to_delete_indexes = np.append(to_delete_indexes,i)
+                            print("---------------------------------------------------------------")
+                            print("WARNING: Routine '", self.children[i,0], "' is not defined in one of the files contained in: ")
+                            if(self.root_path):
+                                print(self.root_path)
+                            else:
+                                print(self.directory)
+                            print("Please ignore this if '",self.children[i,0],"' is defined by fortran language libraries." )
+                            print("---------------------------------------------------------------")
+                    else:
+                        self.children[i,1] = tmp[1,1]
+                        print("---------------------------------------------------------------")
+                        print("WARNING: Can't verify if the code allowed to use file: ")
+                        print(tmp[1,1])
+                        print("It was used anyway.")
+                        print("---------------------------------------------------------------")
 
-    
         if np.size(to_delete_indexes) > 1:
             to_delete_indexes = to_delete_indexes[1:]
             self.children = self.delete(self.children,to_delete_indexes)

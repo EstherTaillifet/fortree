@@ -69,12 +69,12 @@ def get_re(key):
 
     re_key = ""
 
-    if len(key[0]) > 1 and len(key[1]) > 1:
+    if len(key[0]) > 1:
         for k in key:
             re_key = re_key+"\s+"+k
         re_key = re_key[3:]+"\s"
     else:
-        re_key = "^(?!!)(\s*"+key+"\s+(\w+))"
+        re_key = "(\s*"+key+"\s+(\w+))"
 
     return re_key
 

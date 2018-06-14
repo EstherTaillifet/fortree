@@ -26,7 +26,6 @@ class Fortree:
         # Init tree var
         self.root = ""
         self.routines_list = ""
-        self.non_defined_modules_list = ""
         self.tree_arr = ""
 
         self.init_file_var()
@@ -74,40 +73,52 @@ class Fortree:
         if(len(self.directory) < 1):
             self.init_file_var()
 
-        self.non_defined_modules_list = np.array(["name"], dtype='U200')
-
         # Build routines list
-        tmp_list = pr.parse("subroutine", self.directory) # routine name , definition file path
-
+        pre_list_time = time.time()
+        pre_list = pr.parse("subroutine", self.directory) # routine name , definition file path
+        print("===============================================================")
+        print("Pre list took %s seconds to run." % (time.time() - pre_list_time))
+        print("===============================================================")
+        routines_list_time = time.time()
         # List of objects that are instances of Routine class.
-        self.routines_list = [ rt.Routine(one_routine, self.directory) for one_routine in tmp_list[1:]]
+
+        self.routines_list = [ rt.Routine(one_routine[0], one_routine[1], pre_list) for one_routine in pre_list[1:]]
+
+
+        print("===============================================================")
+        print("Routine list took %s seconds to run." % (time.time() - routines_list_time))
+        print("===============================================================")
+        
 
         # Build root
+        root_time = time.time()
         if self.program:
-            self.root = tn.TreeNode(self.program, self.directory, self.routines_list, self.non_defined_modules_list, keyword="program", root_path=self.root_path)
+            self.root = tn.TreeNode(self.program, self.directory, self.routines_list, keyword="program", root_path=self.root_path)
             #root.print_var()
         elif(self.module):
-            self.root =  tn.TreeNode(self.module, self.directory, self.routines_list, self.non_defined_modules_list, keyword="module", root_path=self.root_path)
+            self.root =  tn.TreeNode(self.module, self.directory, self.routines_list, keyword="module", root_path=self.root_path)
             #root.print_var()
         elif(self.routine):
-            self.root =  tn.TreeNode(self.routine, self.directory, self.routines_list, self.non_defined_modules_list, keyword="routine", root_path=self.root_path)
+            self.root =  tn.TreeNode(self.routine, self.directory, self.routines_list, keyword="routine", root_path=self.root_path)
             #root.print_var()
         else:
             tmp = pr.parse("program", self.directory)
             print(tmp)
             print("Try find program. Not implemented yet.")
             sys.exit()
-        self.non_defined_modules_list = self.root.non_defined_modules_list
+
+        print("===============================================================")
+        print("Root took %s seconds to run." % (time.time() - root_time))
+        print("===============================================================")  
 
         if(self.render_type == "CALL_TREE"):
-            self.tree_arr = np.array(["caller", "callee"], dtype='U200')
+            self.tree_arr = np.array(["caller", "callee", "callee_path"], dtype='U200')
         else:
             self.tree_arr = np.array(["parent", "child"], dtype='U200')
 
 
 
     def build_tree(self):
-
 
         # Build root
         if not isinstance(self.root, tn.TreeNode):
@@ -127,23 +138,27 @@ class Fortree:
         #print("New parent = ", parent_node_obj.name)
         #print("Children to consider = ", parent_node_obj.children)
         #print("----------------------------------------------------------------------------------")
+        
         if isinstance(level,int):
             level = level+1
-            #if level == 3:
+            #if level == 2:
             #    return
 
         if (np.size(parent_node_obj.children) > 2):
             for child in parent_node_obj.children[1:]:
-                self.tree_arr=np.vstack([self.tree_arr, [parent_node_obj.name, child[0]]])
+                #node_time = time.time()
+                #print("New child = ", child)
+                self.tree_arr=np.vstack([self.tree_arr, [parent_node_obj.name, child[0], child[1]]])
 
-                #print("Current child: ", child[0])
-                #print("Current child path: ", child[1])
-                node =  tn.TreeNode(child[0], self.directory, self.routines_list, self.non_defined_modules_list, keyword="routine", root_path=child[1])
-                self.non_defined_modules_list = node.non_defined_modules_list
-                #if np.size(node.children) > 2:
-                    #print("Current child's children = ",node.children[1:])
+                node =  tn.TreeNode(child[0], self.directory, self.routines_list, keyword="routine", root_path=child[1])
+
+                #print("===============================================================")
+                #print("Node took %s seconds to run." % (time.time() - node_time))
+                #print("===============================================================")
+                #del node_time  
+
                 self.build_node(node, level)
-    
+
         
         return True
 
@@ -169,8 +184,9 @@ def main():
         ftree = rd.Render(ft.output_name)
 
         ftree.write_header()
-        for duet in ft.tree_arr:
-            ftree.write(duet[0], duet[1])
+        for element in ft.tree_arr:
+            if element[2] != "ND":
+                ftree.write(element[0], element[1])
         ftree.write_footer()
         ftree.render()
 

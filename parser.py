@@ -74,7 +74,7 @@ def get_re(key):
             re_key = re_key+"\s+"+k
         re_key = re_key[3:]+"\s"
     else:
-        re_key = "(\s*"+key+"\s+(\w+))"
+        re_key = "^(?!!)(\s*"+key+"\s+(\w+))"
 
     return re_key
 

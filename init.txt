@@ -13,7 +13,6 @@ What is the path (including file name) to the root file to parse ?
 (Non mendatory if no confusion of file can be made given the next section)
 ----------------------------------------------------------------------------------
 ROOT_PATH
-/Users/esther/Research/Code/Phantom/src/main/evolve.F90
 
 ----------------------------------------------------------------------------------
 What part of your program would you like to render ?
@@ -22,13 +21,13 @@ To render a specific module only, specity the module name: RENDER_SINGLE_MODULE.
 To render a specific routine only, specity the routine name: RENDER_SINGLE_ROUTINE.
 ----------------------------------------------------------------------------------
 RENDER_WHOLE_PROGRAM 
-NONE
+Phantom
 
 RENDER_SINGLE_MODULE
 NONE
 
 RENDER_SINGLE_ROUTINE
-evol
+NONE
 
 ----------------------------------------------------------------------------------
 What type of rendering do you need ?

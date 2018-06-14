@@ -207,8 +207,6 @@ def parse(key, target , key_in=False, key_out=False, output_file=True):
     if np.size(temp_output) > 2:
         output = temp_output
 
-    #print("++++++++++ output ++++++++++")
-    #print(output)
     return output
 
 

@@ -71,13 +71,20 @@ class TreeNode:
                     return
             #print(self.children)
 
-        elif(keyword == "program"):
+        else:
 
-            key = "call"
-            target = self.parent[1,1]
-            key_in = ["program",self.parent[1,0]]
-            key_out = ["end","program", self.parent[1,0]]
-            tmp = pr.parse(key, target, key_in, key_out, output_file=True)
+            if(keyword == "program"):
+                key = "call"
+                target = self.parent[1,1]
+                key_in = ["program",self.parent[1,0]]
+                key_out = ["end","program", self.parent[1,0]]
+                tmp = pr.parse(key, target, key_in, key_out, output_file=True)
+            elif(keyword == "module"):
+                key = "call"
+                target = self.parent[1,1]
+                key_in = ["module",self.parent[1,0]]
+                key_out = ["end","module", self.parent[1,0]]
+                tmp = pr.parse(key, target, key_in, key_out, output_file=True)                
             
             if not isinstance(tmp, bool):
                 self.children = tmp

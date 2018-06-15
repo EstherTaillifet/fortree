@@ -50,7 +50,14 @@ def check_init_value(key, val):
     elif(key == "RENDER_TYPE"):
         ok_val = ["CALL_TREE","CALL_GRAPH","DEF_TREE"]
         if val in ok_val:
-            val_out = val  
+            val_out = val
+    elif(key == "SHOW_ONLY_DEF"): 
+        ok_val = ["YES","NO"]
+        if val in ok_val:
+            if(val == "NO"):
+                val_out = False
+            else:
+                val_out = True
     elif(key == "OUTPUT_NAME"):
         match = re.findall("\w+", val)
         if not match:

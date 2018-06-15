@@ -21,7 +21,9 @@ class Fortree:
         self.module = ""
         self.routine = ""
         self.render_type = ""
+        self.show_only_def =""
         self.output_name = ""
+
            
         # Init tree var
         self.root = ""
@@ -42,6 +44,7 @@ class Fortree:
         )
         print(
         "render type = ", self.render_type, " | "
+        "show only def = ", self.show_only_def, " | "
         "output name = ", self.output_name
         )
         print("---------------------------------------------------------------")
@@ -63,6 +66,7 @@ class Fortree:
         self.module = pr.get_init_value("RENDER_SINGLE_MODULE", filename)
         self.routine = pr.get_init_value("RENDER_SINGLE_ROUTINE", filename)
         self.render_type = pr.get_init_value("RENDER_TYPE", filename)
+        self.show_only_def = pr.get_init_value("SHOW_ONLY_DEF", filename)
         self.output_name = pr.get_init_value("OUTPUT_NAME", filename)
 
         
@@ -151,8 +155,13 @@ def main():
         ftree = rd.Render(ft.output_name)
 
         ftree.write_header()
-        for element in ft.tree_arr:
-            if element[2] != "ND": 
+
+        if ft.show_only_def:
+            for element in ft.tree_arr:
+                if element[2] != "ND": 
+                    ftree.write(element[0], element[1])
+        else:
+            for element in ft.tree_arr:
                 ftree.write(element[0], element[1])
         ftree.write_footer()
         ftree.render()

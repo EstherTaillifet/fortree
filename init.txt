@@ -7,13 +7,12 @@ What is the directory that contains the file(s) to parse ?
 ----------------------------------------------------------------------------------
 DIRECTORY_TO_PARSE
 /Users/esther/Research/Code/Phantom/src
-
 ----------------------------------------------------------------------------------
 What is the path (including file name) to the root file to parse ? 
 (Non mendatory if no confusion of file can be made given the next section)
 ----------------------------------------------------------------------------------
 ROOT_PATH
-
+/Users/esther/Research/Code/Phantom/src/main/growth.f90
 ----------------------------------------------------------------------------------
 What part of your program would you like to render ?
 To render the whole program, specify the program name: RENDER_WHOLE_PROGRAM. 
@@ -21,10 +20,10 @@ To render a specific module only, specity the module name: RENDER_SINGLE_MODULE.
 To render a specific routine only, specity the routine name: RENDER_SINGLE_ROUTINE.
 ----------------------------------------------------------------------------------
 RENDER_WHOLE_PROGRAM 
-Phantom
+NONE
 
 RENDER_SINGLE_MODULE
-NONE
+growth
 
 RENDER_SINGLE_ROUTINE
 NONE
@@ -38,6 +37,15 @@ default value = NONE
 ----------------------------------------------------------------------------------
 RENDER_TYPE
 CALL_TREE
+
+----------------------------------------------------------------------------------
+Show only calls of routines defined in the code ?
+YES
+NO
+default value = YES
+----------------------------------------------------------------------------------
+SHOW_ONLY_DEF
+NO
 
 ----------------------------------------------------------------------------------
 How would you like to call the output files (without extension) ? 

@@ -24,6 +24,9 @@ class Fortree:
         self.fortree_type = ""
         self.show_only_def =""
         self.output_name = ""
+        self.n_levels = ""
+        self.tree_root_name = ""
+        self.tree_root_type = ""
 
            
         # Init tree var
@@ -37,18 +40,14 @@ class Fortree:
         
     def print_var(self):
         print("---------------------------------------------------------------")
-        print("directory = ",self.directory)
-        print("root path = ",self.root_path)
-        print(
-        "program to render = ", self.program, " | "
-        "module to render = ", self.module, " | "
-        "routine to render = ", self.routine
-        )
-        print(
-        "render type = ", self.fortree_type, " | "
-        "show only def = ", self.show_only_def, " | "
-        "output name = ", self.output_name
-        )
+        print("Directory = ",self.directory)
+        print("Root path = ",self.root_path)
+        print("Tree root type = ", self.tree_root_type)
+        print("Tree root name = ", self.tree_root_name)
+        print("Render type = ", self.fortree_type)
+        print("Show only def = ", self.show_only_def)
+        print("N levels to render = ", self.n_levels)
+        print("Output name = ", self.output_name)
         print("---------------------------------------------------------------")
 
     def init_file_var(self):
@@ -63,10 +62,16 @@ class Fortree:
         filename = sys.argv[1]
 
         self.directory = pr.get_init_value("DIRECTORY_TO_PARSE", filename)
-        self.root_path = pr.get_init_value("ROOT_PATH", filename)
-        self.program = pr.get_init_value("RENDER_WHOLE_PROGRAM", filename)
-        self.module = pr.get_init_value("RENDER_SINGLE_MODULE", filename)
-        self.routine = pr.get_init_value("RENDER_SINGLE_ROUTINE", filename)
+        self.root_path = pr.get_init_value("ROOT_FILE_PATH", filename)
+        self.tree_root_name = pr.get_init_value("TREE_ROOT_NAME", filename)
+        self.tree_root_type = pr.get_init_value("TREE_ROOT_TYPE", filename)
+        if (self.tree_root_type == "PROGRAM"):
+            self.program = self.tree_root_name
+        elif(self.tree_root_type == "MODULE"):
+            self.module = self.tree_root_name
+        elif(self.tree_root_type == "ROUTINE"):
+            self.routine = self.tree_root_name
+        self.n_levels = pr.get_init_value("N_LEVELS", filename)
         self.fortree_type = pr.get_init_value("FORTREE_TYPE", filename)
         self.show_only_def = pr.get_init_value("SHOW_ONLY_DEF", filename)
         self.output_name = pr.get_init_value("OUTPUT_NAME", filename)
@@ -142,6 +147,8 @@ class Fortree:
 
         if isinstance(level,int):
             level = level+1
+            if level == self.n_levels:
+                return
 
         if (np.size(parent_node_obj.children) > 2):
             for child in parent_node_obj.children[1:]:
@@ -166,6 +173,7 @@ def main():
     ft = Fortree()
     ft.print_var()
 
+
     if(ft.fortree_type == "CALL_TREE" or ft.fortree_type == "DEF_TREE"):
         ft.build_tree()
 
@@ -177,10 +185,12 @@ def main():
             ftree = rd.Render(ft.output_name)
     
             ftree.write_header()
-    
+
             if ft.show_only_def:
                 for element in ft.tree_arr:
-                    if element[2] != "ND": 
+                    if(ft.fortree_type == "CALL_TREE" and element[2] != "ND"): 
+                        ftree.write(element[0], element[1])
+                    else:
                         ftree.write(element[0], element[1])
             else:
                 for element in ft.tree_arr:

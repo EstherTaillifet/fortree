@@ -33,33 +33,44 @@ def check_init_value(key, val):
         if val_out[len(val_out)-1] == "/":
             val_out = val_out[0:len(val_out)-1]
 
-    elif (key == "ROOT_PATH"):
+    elif (key == "ROOT_FILE_PATH"):
         match = re.findall("\/[^,:]*", val)
         if match:
             val_out = val
 
-    elif (key == "RENDER_WHOLE_PROGRAM"):
-        if val != "NONE":
+    elif (key == "TREE_ROOT_NAME"):
             val_out = val
-    elif (key == "RENDER_SINGLE_MODULE"):
-        if val != "NONE":
+
+    elif (key == "TREE_ROOT_TYPE"):
+        ok_val = ["PROGRAM","MODULE","ROUTINE"]
+        if val in ok_val:
             val_out = val
-    elif(key == "RENDER_SINGLE_ROUTINE"):
-        if val != "NONE":
-            val_out = val
+
     elif(key == "FORTREE_TYPE"):
-        ok_val = ["CALL_TREE","CALL_GRAPH","DEF_TREE", "DEF_GRAPH"]
+        ok_val = ["CALL_TREE","CALL_GRAPH","DEF_TREE", "DEF_GRAPH", "NINJA_TREE"]
         val_out = "CALL_TREE" # Default value
         if val in ok_val:
             val_out = val
-    elif(key == "SHOW_ONLY_DEF"): 
+
+    elif (key == "SHOW_ONLY_DEF"): 
         ok_val = ["YES","NO"]
         if val in ok_val:
             if(val == "NO"):
                 val_out = False
             else:
                 val_out = True # If "yes" and by default
-    elif(key == "OUTPUT_NAME"):
+    elif (key == "N_LEVELS"):
+        if (val == "ALL"):
+            val_out = False
+        else:
+            val_out = int(val)
+            if val_out < 2:
+                print("---------------------------------------------------------------")
+                print("ERROR: Number of levels need to be greater than 1.")
+                print("---------------------------------------------------------------")
+                sys.exit()               
+
+    elif (key == "OUTPUT_NAME"):
         match = re.findall("\w+", val)
         if not match:
             val_out = "fortree"

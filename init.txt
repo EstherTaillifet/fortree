@@ -1,55 +1,18 @@
-! Initialization file for Fortree.
-! ~$ Python3 fortree.py init.txt
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! This is your initialization file for Fortree. !
+! Here is how you use it:						!
+! ~$ Python3 fortree.py init.txt				!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-----------------------------------------------------------------------------------
-What is the directory that contains the file(s) to parse ? 
-(Non mendatory. Default value = current directory)
-----------------------------------------------------------------------------------
-DIRECTORY_TO_PARSE
-/Users/esther/Research/Code/Phantom/src
-----------------------------------------------------------------------------------
-What is the path (including file name) to the root file to parse ? 
-(Non mendatory if no confusion of file can be made given the next section)
-----------------------------------------------------------------------------------
-ROOT_PATH
-/Users/esther/Research/Code/Phantom/src/main/force.F90
-----------------------------------------------------------------------------------
-What part of your program would you like to render ?
-To render the whole program, specify the program name: RENDER_WHOLE_PROGRAM. 
-To render a specific module only, specity the module name: RENDER_SINGLE_MODULE.
-To render a specific routine only, specity the routine name: RENDER_SINGLE_ROUTINE.
-----------------------------------------------------------------------------------
-RENDER_WHOLE_PROGRAM 
-NONE
+TREE_ROOT_NAME					evolve															# Name of the part of the code to fortree.
+TREE_ROOT_TYPE 					MODULE 															# What is it ? Values: "PRGRAMM", "MODULE" or "ROUTINE".
+ROOT_FILE_PATH					/Users/esther/Research/Code/Phantom/src/main/evolve.F90			# Path to the root file.
+DIRECTORY_TO_PARSE				/Users/esther/Research/Code/Phantom/src							# Directory to your fortran files. 
 
-RENDER_SINGLE_MODULE
-forces
+FORTREE_TYPE 					CALL_TREE		# What type of tree do you need ? CALL_TREE, DEF_TREE or NINJA_TREE (def for the first level and calls afterwards.) 
+If you chose CALL_TREE:
+SHOW_ONLY_DEF					YES				# Do you whant to display only the calls of functions defined in your code ? "YES" or "NO" (= show all the calls).
+N_LEVELS						ALL				# How many levels do you want to display ? Integer (make sure the levels exist, min val = 2) or "ALL".
 
-RENDER_SINGLE_ROUTINE
-NONE
+OUTPUT_NAME						phantom_tree	# A name for your outputs ? (Default = fortree)
 
-----------------------------------------------------------------------------------
-What type of rendering do you need ?
-NONE
-CALL_TREE
-DEF_TREE
-default value = CALL_TREE
-----------------------------------------------------------------------------------
-FORTREE_TYPE
-DEF_TREE
-
-----------------------------------------------------------------------------------
-Show only calls of routines defined in the code ?
-YES
-NO
-default value = YES
-----------------------------------------------------------------------------------
-SHOW_ONLY_DEF
-NO
-
-----------------------------------------------------------------------------------
-How would you like to call the output files (without extension) ? 
-Default value = fortree
-----------------------------------------------------------------------------------
-OUTPUT_NAME
-phantom_tree

@@ -47,8 +47,9 @@ def check_init_value(key, val):
     elif(key == "RENDER_SINGLE_ROUTINE"):
         if val != "NONE":
             val_out = val
-    elif(key == "RENDER_TYPE"):
-        ok_val = ["CALL_TREE","CALL_GRAPH","DEF_TREE"]
+    elif(key == "FORTREE_TYPE"):
+        ok_val = ["CALL_TREE","CALL_GRAPH","DEF_TREE", "DEF_GRAPH"]
+        val_out = "CALL_TREE" # Default value
         if val in ok_val:
             val_out = val
     elif(key == "SHOW_ONLY_DEF"): 
@@ -57,7 +58,7 @@ def check_init_value(key, val):
             if(val == "NO"):
                 val_out = False
             else:
-                val_out = True
+                val_out = True # If "yes" and by default
     elif(key == "OUTPUT_NAME"):
         match = re.findall("\w+", val)
         if not match:

@@ -12,7 +12,7 @@ What is the path (including file name) to the root file to parse ?
 (Non mendatory if no confusion of file can be made given the next section)
 ----------------------------------------------------------------------------------
 ROOT_PATH
-/Users/esther/Research/Code/Phantom/src/main/growth.f90
+/Users/esther/Research/Code/Phantom/src/main/force.F90
 ----------------------------------------------------------------------------------
 What part of your program would you like to render ?
 To render the whole program, specify the program name: RENDER_WHOLE_PROGRAM. 
@@ -23,7 +23,7 @@ RENDER_WHOLE_PROGRAM
 NONE
 
 RENDER_SINGLE_MODULE
-growth
+forces
 
 RENDER_SINGLE_ROUTINE
 NONE
@@ -32,11 +32,11 @@ NONE
 What type of rendering do you need ?
 NONE
 CALL_TREE
-CALL_GRAPH
-default value = NONE
+DEF_TREE
+default value = CALL_TREE
 ----------------------------------------------------------------------------------
-RENDER_TYPE
-CALL_TREE
+FORTREE_TYPE
+DEF_TREE
 
 ----------------------------------------------------------------------------------
 Show only calls of routines defined in the code ?

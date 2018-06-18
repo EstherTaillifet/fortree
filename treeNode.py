@@ -8,7 +8,7 @@ import time
 
 class TreeNode:
 
-    def __init__(self, name, directory, routines_list, keyword, root_path=False):
+    def __init__(self, name, directory, routines_list, modules_list, fortree_type, keyword, root_path=False):
         self.name = name
         self.directory = directory
         self.root_path = root_path
@@ -16,15 +16,15 @@ class TreeNode:
         self.children = np.array(["name","path"], dtype='U200') # name, path
 
         # Init parent
-        self.init_parent(keyword, routines_list)
+        self.init_parent(keyword)
 
         # Init children     
-        self.init_children(keyword, routines_list)
+        self.init_children(keyword, routines_list, modules_list, fortree_type)
     
     ''' 
     Initialization functions 
     '''
-    def init_parent(self, keyword, routines_list):
+    def init_parent(self, keyword):
 
         if self.root_path:
             self.parent = np.vstack([self.parent,[self.name,self.root_path]])
@@ -34,7 +34,7 @@ class TreeNode:
                 key = ["program", self.name]
             elif(keyword == "module"):
                 key = ["module", self.name]
- 
+
             target = self.directory
            
             tmp = pr.parse(key, target)
@@ -59,48 +59,70 @@ class TreeNode:
 
 
 
-    def init_children(self, keyword, routines_list):
+    def init_children(self, keyword, routines_list, modules_list, fortree_type):
 
         # Find chilren and their definitiion files
-        if(keyword == "routine"):
+            if (fortree_type == "CALL_TREE"):
+                if (keyword == "routine"):
+        
+                    for routine in routines_list[1:]:
+                        if routine.name == self.name and routine.name != "name":
+                            if np.size(routine.callees) > 1:
+                                self.children = routine.callees
+                            return        
+                else:
+        
+                    if(keyword == "program"):
+                        key = "call"
+                        target = self.parent[1,1]
+                        key_in = ["program",self.parent[1,0]]
+                        key_out = ["end","program", self.parent[1,0]]
+                        tmp = pr.parse(key, target, key_in, key_out, output_file=True)
+                    elif(keyword == "module"):
+                        key = "call"
+                        target = self.parent[1,1]
+                        key_in = ["module",self.parent[1,0]]
+                        key_out = ["end","module", self.parent[1,0]]
+                        tmp = pr.parse(key, target, key_in, key_out, output_file=True)                
+                    
+                    if not isinstance(tmp, bool):
+                        self.children = tmp
+                        self.children = self.clean(self.children)
+                    n = int(np.size(self.children)/2)
+        
+                    children = self.children
+        
+                    i=1
+                    for child in children[1:]:
+                        self.children[i,1] = "ND"
+                        for routine in routines_list:
+                            if routine.name == child[0]:
+                                self.children[i,1] = routine.path
+                    i=i+1
+            elif(fortree_type == "DEF_TREE"):
+                if (keyword == "module"):
+                    for module in modules_list[1:]:
+                        if module.name == self.name and module.path.strip() == self.parent[1,1].strip() and module.name != "name":
+                            if np.size(module.def_routines) > 1:
+                                self.children = module.def_routines
+                            return
+                    
+                elif(keyword == "program"):
+                    key = "subroutine"
+                    target = self.parent[1,1]
+                    key_in = ["program",self.parent[1,0]]
+                    key_out = ["end","program", self.parent[1,0]]
+                    tmp = pr.parse(key, target, key_in, key_out, output_file=True)
+                    
+                    if not isinstance(tmp, bool):
+                        self.children = tmp
+                        self.children = self.clean(self.children)
 
-            for routine in routines_list[1:]:
-                if routine.name == self.name and routine.name != "name":
-                    if np.size(routine.callees) > 1:
-                        self.children = routine.callees[1:]
-                    return
-            #print(self.children)
-
-        else:
-
-            if(keyword == "program"):
-                key = "call"
-                target = self.parent[1,1]
-                key_in = ["program",self.parent[1,0]]
-                key_out = ["end","program", self.parent[1,0]]
-                tmp = pr.parse(key, target, key_in, key_out, output_file=True)
-            elif(keyword == "module"):
-                key = "call"
-                target = self.parent[1,1]
-                key_in = ["module",self.parent[1,0]]
-                key_out = ["end","module", self.parent[1,0]]
-                tmp = pr.parse(key, target, key_in, key_out, output_file=True)                
-            
-            if not isinstance(tmp, bool):
-                self.children = tmp
-                self.children = self.clean(self.children)
-            n = int(np.size(self.children)/2)
-
-            children = self.children
-
-            i=1
-            for child in children[1:]:
-                self.children[i,1] = "ND"
-                for routine in routines_list:
-                    if routine.name == child[0]:
-                        self.children[i,1] = routine.path
-                i=i+1
-
+                elif (keyword == "routine"):
+                    print("---------------------------------------------------------------")
+                    print("ERROR: Routines cannot defined other routines.")
+                    print("---------------------------------------------------------------")
+                    sys.exit()
 
             
 

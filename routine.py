@@ -11,43 +11,25 @@ class Routine:
 
         self.name = name
         self.path = path
-        self.callees = np.array(["name", "path"], dtype='U200') # name
-        self.used_modules = np.array(["name", "path"], dtype='U200') # name
-
-        # Init used_modules
-        self.init_used_modules()
+        self.callees = np.array(["name", "path"], dtype='U200') # Routines called by self.name.  path = definition file path.
 
         # Init callees
         self.init_callees(pre_list)
 
-
-    def init_used_modules(self):
-
-        key = "use"
-        target = self.path
-        tmp = pr.parse(key, target)
-        
-        if not isinstance(tmp, bool):
-            self.used_modules = tmp
-            self.used_modules = np.unique(self.used_modules, axis=0) 
-
-
     def init_callees(self, pre_list):
-
-        if(np.size(self.used_modules) < 4):
-            self.init_used_modules()
 
         key = "call"
         target = self.path
         key_in = ["subroutine",self.name]
         key_out = ["end","subroutine", self.name]
         tmp = pr.parse(key, target, key_in, key_out, output_file=True)
-        
+
+        # Clean duplicates
         if not isinstance(tmp, bool):
             self.callees = tmp
             callees_tmp = self.callees[1:]
             callees_tmp = np.unique(callees_tmp, axis=0)
-            self.callees = np.array(["name", "path"], dtype='U200')
+            self.callees = np.array(["name","path"], dtype='U200')
             for callee in callees_tmp:
                 self.callees = np.vstack([self.callees, [callee]])
 

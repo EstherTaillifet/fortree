@@ -8,7 +8,7 @@ import time
 
 class TreeNode:
 
-    def __init__(self, name, directory, routines_list, modules_list, fortree_type, keyword, root_path=False):
+    def __init__(self, name, directory, routines_list, modules_list, branch_type, keyword, root_path=False):
         self.name = name
         self.directory = directory
         self.root_path = root_path
@@ -19,7 +19,7 @@ class TreeNode:
         self.init_parent(keyword)
 
         # Init children     
-        self.init_children(keyword, routines_list, modules_list, fortree_type)
+        self.init_children(keyword, routines_list, modules_list, branch_type)
     
     ''' 
     Initialization functions 
@@ -59,10 +59,10 @@ class TreeNode:
 
 
 
-    def init_children(self, keyword, routines_list, modules_list, fortree_type):
+    def init_children(self, keyword, routines_list, modules_list, branch_type):
 
         # Find chilren and their definitiion files
-            if (fortree_type == "CALL_TREE"):
+            if (branch_type == "CALL"):
                 if (keyword == "routine"):
         
                     for routine in routines_list[1:]:
@@ -99,10 +99,10 @@ class TreeNode:
                             if routine.name == child[0]:
                                 self.children[i,1] = routine.path
                     i=i+1
-            elif(fortree_type == "DEF_TREE"):
+            elif(branch_type == "DEF"):
                 if (keyword == "module"):
                     for module in modules_list[1:]:
-                        if module.name == self.name and module.path.strip() == self.parent[1,1].strip() and module.name != "name":
+                        if self.parent[1,1].strip() == module.path.strip():
                             if np.size(module.def_routines) > 1:
                                 self.children = module.def_routines
                             return

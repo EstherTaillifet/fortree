@@ -34,9 +34,16 @@ def check_init_value(key, val):
             val_out = val_out[0:len(val_out)-1]
 
     elif (key == "ROOT_FILE_PATH"):
-        match = re.findall("\/[^,:]*", val)
-        if match:
+        #match = re.findall("\/[^,:]*", val)
+        #if match:
+        #    val_out = val
+        if is_fortran_extension_file(val):
             val_out = val
+        else:
+            print("---------------------------------------------------------------")
+            print("ERROR: "+val+" is not a path to a Fortran file.")
+            print("---------------------------------------------------------------")
+            sys.exit()              
 
     elif (key == "TREE_ROOT_NAME"):
             val_out = val
@@ -47,7 +54,7 @@ def check_init_value(key, val):
             val_out = val
 
     elif(key == "FORTREE_TYPE"):
-        ok_val = ["CALL_TREE","CALL_GRAPH","DEF_TREE", "DEF_GRAPH", "NINJA_TREE"]
+        ok_val = ["CALL_TREE","CALL_GRAPH","DEF_TREE", "DEF_GRAPH", "DEP_TREE"]
         val_out = "CALL_TREE" # Default value
         if val in ok_val:
             val_out = val

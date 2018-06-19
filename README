@@ -2,7 +2,7 @@ Fortree is a python app that creates call trees of your fortran code.
 Fortree makes call trees, definition trees and dependencies trees.
 
 To use Fortree:
-1) Make sure Python 3 is installed on your machine.
+1) Make sure Python 3 is installed on your machine (you need: numpy, gv, re).
 2) Create an initalization file (use init.txt given as an example).
 3) launch the code as so: ~$ Python3 fortree.py init.txt
 

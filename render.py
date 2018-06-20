@@ -22,4 +22,5 @@ class Render:
         os.system("dot -Teps -o "+self.name+".eps "+self.name+".gv")
         print("---------------------------------------------------------------")
         print("Render done.")
+        print("Tree file: "+self.name+".eps ")
         print("---------------------------------------------------------------")

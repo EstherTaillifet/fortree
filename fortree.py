@@ -76,6 +76,18 @@ class Fortree:
         self.show_only_def = pr.get_init_value("SHOW_ONLY_DEF", filename)
         self.output_name = pr.get_init_value("OUTPUT_NAME", filename)
 
+        if (self.tree_root_type == "PROGRAM" or self.tree_root_type == "ROUTINE"  and self.fortree_type == "DEP"):
+            print("---------------------------------------------------------------")
+            print("ERROR: Inconsistent initialisation parameters. ")
+            print("DEP (for dependencies tree) is only available for modules.")
+            print("---------------------------------------------------------------")
+            sys.exit()
+        if (self.tree_root_type == "ROUTINE" and self.fortree_type == "DEF"):         
+            print("---------------------------------------------------------------")
+            print("ERROR: Inconsistent initialisation parameters. ")
+            print("DEF (for definitions tree) is not available for routines (routines can't define routines).")
+            print("---------------------------------------------------------------")
+            sys.exit()
         
 
 
